@@ -1,0 +1,67 @@
+#include <LiquidCrystal.h>
+#define temp A0
+int celcius = 0;
+int humid = 0;
+int h = 0;
+int t = 0;
+const int buzzer = 9;
+const int led = 13;
+
+// initialize the library with the numbers of the interface pins
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+
+void setup() {
+  Serial.begin(9600); 
+  pinMode(temp,INPUT);
+  pinMode(buzzer, OUTPUT);
+  pinMode(led,OUTPUT);
+  lcd.begin(16, 2);
+  lcd.clear();
+}
+void loop() {
+  celcius = map(((analogRead(temp) - 20) * 3.04), 0, 1023, -40, 125);
+  humid = map(celcius,-40,125,0,100);
+  lcd.clear();
+  if(t == 1){
+    lcd.setCursor(12,0);
+    lcd.print("HIGH");
+  }
+  if(h == 1){
+    lcd.setCursor(12,1);
+    lcd.print("HIGH");
+  }
+  lcd.setCursor(0, 0);
+  lcd.print("Temp");//Set cursor to character 2 on line 0
+  lcd.setCursor(5, 0);  //Move cursor to character 2 on line 1
+  lcd.print(celcius);
+  lcd.setCursor(0, 1);
+  lcd.print("Humid");
+  lcd.setCursor(5, 1);  //Move cursor to character 2 on line 1
+  lcd.print(humid);
+  delay(200);
+  if(celcius < 30){
+    t=0;
+  }
+  if(humid < 85){
+    h=0;
+  }
+  if(celcius >= 30 or humid >= 85){
+    if(celcius >= 30){
+      digitalWrite(led,HIGH);
+      lcd.setCursor(12,0);
+      lcd.print("HIGH");
+      t = 1;
+      tone(buzzer,800);
+    }
+    if(humid >= 85){
+      digitalWrite(led,HIGH);
+      lcd.setCursor(12,1);
+      lcd.print("HIGH");
+      h = 1;
+      tone(buzzer,800);
+    }
+  }else{
+    digitalWrite(led,LOW);
+    noTone(buzzer);
+  }
+}
